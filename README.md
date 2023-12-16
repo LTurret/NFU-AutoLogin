@@ -2,6 +2,15 @@
 
 A Python script designed for user authentication on [identity.nfu.edu.tw](https://ulearn.nfu.edu.tw/) without solving captcha
 
+## Directory Structure
+
+```plain
+src/
+├── .env
+├── login.py
+└── main.py
+```
+
 ## Build
 
 ### Requirements
@@ -26,4 +35,4 @@ python3 -B main.py
 
 ## License
 
-Licensed under [MIT](LICENSE).
+Licensed under [MIT](LICENSE)
