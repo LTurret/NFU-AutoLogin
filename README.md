@@ -5,32 +5,37 @@ A Python script designed for user authentication on [identity.nfu.edu.tw](https:
 ## Directory Structure
 
 ```plain
+.env
+model.pkl
 src/
-├── .env
-├── login.py
+├── model.py
 └── main.py
 ```
 
-## Build
+## Requirements
 
-### Requirements
+### Packages
 
 Install packages via
 `pip install -r requirements.txt`
 
-### .env
+### Secrets
 
-Create a enviornment variables for keep your secrets
+Create a `.env` to keep your secrets
 
 ```.env
-username=
-password=
+nfu_username=
+nfu_password=
 ```
 
-### Running
+### Model
+
+To use OCR for detect captcha, you need to run `./src/model.py` to generate the `model.pkl`
+
+## Running
 
 ```shell
-python3 -B main.py
+python3 -B ./src/main.py
 ```
 
 ## License
