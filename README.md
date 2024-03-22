@@ -7,9 +7,10 @@ A Python script designed for user authentication on [identity.nfu.edu.tw](https:
 ```plain
 .env
 src/
-├── model.pkl
+├── fetch_util.py
+├── main.py
 ├── model.py
-└── main.py
+└── validator.py
 ```
 
 ## Requirements
