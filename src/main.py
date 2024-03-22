@@ -18,15 +18,12 @@ from requests import get
 from requests import post
 from requests import Response
 
+from validator import validator
+
 load_dotenv()
 
 
 async def login(reader: Reader) -> str:
-    username: str = getenv("nfu_username")
-    password: str = getenv("nfu_password")
-    assert username is not None, '"nfu_username" variable not found, did you place your secrets in ".env" correctly?'
-    assert password is not None, '"nfu_password" variable not found, did you place your secrets in ".env" correctly?'
-
     # Make a base request to get essentials
     url: str = "https://identity.nfu.edu.tw/auth/realms/nfu/protocol/cas/login?service=https://ulearn.nfu.edu.tw/login"
     response: Response = get(url)
@@ -60,8 +57,8 @@ async def login(reader: Reader) -> str:
 
     # Build POST data
     data: dict = {
-        "username": username,
-        "password": password,
+        "username": getenv("nfu_username"),
+        "password": getenv("nfu_password"),
         "captchaCode": captchaCode,
         "captchaKey": captchaKey,
     }
@@ -78,8 +75,12 @@ async def login(reader: Reader) -> str:
 
 
 async def main():
-    assert path.isfile(f".{path.dirname(path.realpath(__file__))}{sep}model.pkl"), "Model not found, Ensure that you have trained the model."
-    with open("model.pkl", "rb") as model:
+    model: str = rf"{path.dirname(path.realpath(__file__))}{sep}model.pkl"
+
+    # Validates require files.
+    validator((getenv("nfu_username"), getenv("nfu_password")), model)
+
+    with open(model, "rb") as model:
         reader: Reader = load(model)
 
     tasks: list = [create_task(login(reader)) for _ in range(7)]
