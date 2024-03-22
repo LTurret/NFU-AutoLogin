@@ -9,7 +9,7 @@ def validator(secrets: tuple, model: str) -> bool:
         raise ValueError(
             'The provided secrets do not meet the required criteria. Please check your ".env" file and ensure it follows the correct format. For example, SECRET_KEY="YourSecretKey".'
         )
-    
+
     secrets = None
 
     return True
