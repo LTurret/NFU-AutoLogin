@@ -6,8 +6,8 @@ A Python script designed for user authentication on [identity.nfu.edu.tw](https:
 
 ```plain
 .env
-model.pkl
 src/
+├── model.pkl
 ├── model.py
 └── main.py
 ```
@@ -16,8 +16,19 @@ src/
 
 ### Packages
 
-Install packages via
-`pip install -r requirements.txt`
+Install packages via requirements.txt
+
+#### Windows
+
+```shell
+pip install -r requirements_win.txt
+```
+
+#### macOS
+
+```shell
+pip install -r requirements_intel-macos.txt
+```
 
 ### Secrets
 
