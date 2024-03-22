@@ -24,12 +24,8 @@ load_dotenv()
 async def login(reader: Reader) -> str:
     username: str = getenv("nfu_username")
     password: str = getenv("nfu_password")
-    assert (
-        username is not None
-    ), '"nfu_username" variable not found, did you place your secrets in ".env" correctly?'
-    assert (
-        password is not None
-    ), '"nfu_password" variable not found, did you place your secrets in ".env" correctly?'
+    assert username is not None, '"nfu_username" variable not found, did you place your secrets in ".env" correctly?'
+    assert password is not None, '"nfu_password" variable not found, did you place your secrets in ".env" correctly?'
 
     # Make a base request to get essentials
     url: str = "https://identity.nfu.edu.tw/auth/realms/nfu/protocol/cas/login?service=https://ulearn.nfu.edu.tw/login"
@@ -82,15 +78,13 @@ async def login(reader: Reader) -> str:
 
 
 async def main():
-    assert path.isfile(
-        f".{sep}model.pkl"
-    ), "Model not found, Ensure that you have trained the model."
+    assert path.isfile(f".{path.dirname(path.realpath(__file__))}{sep}model.pkl"), "Model not found, Ensure that you have trained the model."
     with open("model.pkl", "rb") as model:
         reader: Reader = load(model)
 
     tasks: list = [create_task(login(reader)) for _ in range(7)]
 
-    tpc = perf_counter()
+    tpc: float = perf_counter()
     done, pending = await wait(tasks, return_when=FIRST_COMPLETED)
 
     for task in pending:
@@ -99,7 +93,7 @@ async def main():
     for task in done:
         result = task.result()
         if result != "Login failed.":
-            print(result)
+            print(f"Login completed.\n{result}\n")
             timeup = perf_counter() - tpc
             print(f"{__file__} executed in {timeup:0.2f} seconds.")
             print("Now you can replace your session cookie with: https://ulearn.nfu.edu.tw")
