@@ -6,7 +6,6 @@ from asyncio import set_event_loop
 from asyncio import AbstractEventLoop
 from asyncio import Task
 from asyncio import FIRST_COMPLETED
-from base64 import b64decode
 from http.cookies import Morsel
 from os import getenv
 from os import path
@@ -15,41 +14,33 @@ from pickle import load
 from re import findall
 from re import search
 from time import perf_counter
-from typing import Dict
-from typing import List
 
 from aiohttp import ClientSession
 from dotenv import load_dotenv
 from easyocr import Reader
-from requests import get
-from requests import Response
 
-from validator import validator
+from captcha_util import gatherKey
+from captcha_util import solver
 from fetch_util import fetch
+from validator import validator
 
 load_dotenv()
 
 
 async def login(reader: Reader) -> str:
     async with ClientSession() as session:
-        task: List[Task] = [create_task(fetch(session))]
+        task: list[Task] = [create_task(fetch(session))]
         await gather(*task)
         login_url: str = task[0].result()["login_url"]
-        cookies: Dict[str, Morsel] = task[0].result()["cookies"]
+        cookies: dict[str, Morsel] = task[0].result()["cookies"]
 
     # Fetch valid captchaKey
-    api: str = "https://identity.nfu.edu.tw/auth/realms/nfu/captcha/code"
-    callback: Response = get(api)
+    callback = gatherKey()
     captchaKey: str = search(r"\"key\":\"(.+)\"", callback.text).group(1)
 
     # Breaking captchaCode
     uri: str = search(r"data:image\/png;base64,(.+)\",\"", callback.text).group(1)
-    result: List[str] = reader.readtext(b64decode(uri))
-
-    if len(result) > 0:
-        captchaCode: str = result[0][-2].replace(" ", "")
-    else:
-        return "captchaCode detect failed."
+    captchaCode = solver(reader, uri)
 
     # Build headers
     headers: dict = {
@@ -69,7 +60,7 @@ async def login(reader: Reader) -> str:
     async with ClientSession(cookies=cookies, headers=headers) as session:
         async with session.post(url=login_url, data=data) as response:
             respond: str = await response.text()
-            cookies: Dict[str, Morsel] = session.cookie_jar.filter_cookies("https://ulearn.nfu.edu.tw/")
+            cookies: dict[str, Morsel] = session.cookie_jar.filter_cookies("https://ulearn.nfu.edu.tw/")
 
             if findall(r"firstChildTeachingClassesPage", respond):
                 for _, cookie in cookies.items():
@@ -87,7 +78,7 @@ async def main():
     with open(model, "rb") as model:
         reader: Reader = load(model)
 
-    tasks: List[Task] = [create_task(login(reader)) for _ in range(7)]
+    tasks: list[Task] = [create_task(login(reader)) for _ in range(7)]
     tpc: float = perf_counter()
     flag: bool = False
 
