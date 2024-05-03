@@ -22,7 +22,7 @@ Install packages via requirements.txt
 #### Windows
 
 ```shell
-pip install -r requirements_win.txt
+pip install -r requirements.txt
 ```
 
 #### macOS
